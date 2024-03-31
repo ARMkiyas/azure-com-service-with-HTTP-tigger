@@ -4,16 +4,13 @@ import { EmailClient, EmailMessage, KnownEmailSendStatus } from "@azure/communic
 import { z } from "zod";
 import otpEmailTemplates from "../../Templates/otpEmailTemplates";
 import sendMail from "../services/SendMail";
+import { phoneValidationSc } from "../utils/validSc";
+import sendMessage from "../services/SendMessage";
 
 
 const validationSc = z.object({
-    phoneNumber: z.string()
-        .regex(
-            /^\+\d{1,2}\s\(\d{3}\)\s\d{3}-\d{4}$|^\+\d{1,2}\s\(\d{3}\)\s\d{9}$/,
-            "Invalid Phone Number, please provide it in international format +94 (123) 456-7890",
-        )
-        .min(1, "phone is Required").optional(),
-    email: z.string().email(),
+    phoneNumber: phoneValidationSc.optional(),
+    email: z.string().email().optional(),
     username: z.string().optional(),
     otp: z.string()
 });
@@ -27,6 +24,7 @@ export async function sendOTP(request: HttpRequest, context: InvocationContext):
 
 
         if (!validationSc.safeParse(data).success) {
+
             return { jsonBody: { message: "OTP Has Not been sent, invalid Data", data: data }, status: 400 };
         }
 
@@ -62,9 +60,6 @@ export async function sendOTP(request: HttpRequest, context: InvocationContext):
 
 
         if (data.phoneNumber) {
-            const wpclient = MessageClient(process.env["connectionString"]);
-
-            const channelRegistrationId = process.env["channelRegistrationId"];
 
             const recipientList = [data.phoneNumber];
 
@@ -104,21 +99,16 @@ export async function sendOTP(request: HttpRequest, context: InvocationContext):
 
             };
 
-            const templateMessageResult = await wpclient
-                .path("/messages/notifications:send")
-                .post({
-                    contentType: "application/json",
-                    body: {
-                        channelRegistrationId: channelRegistrationId,
-                        to: recipientList,
-                        kind: "template",
-                        template: template,
+            const templateMessageResult = await sendMessage({
+                kind: "template",
+                recipientList,
+                template: template
+            })
 
-                    },
-                });
+            console.log(templateMessageResult.status);
 
 
-            console.log(templateMessageResult);
+
         }
 
 
