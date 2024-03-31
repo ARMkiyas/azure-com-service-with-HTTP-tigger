@@ -1,8 +1,9 @@
 import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import MessageClient, { MessageTemplate, MessageTemplateBindings, MessageTemplateQuickAction, MessageTemplateValue } from "@azure-rest/communication-messages";
-import { EmailClient, KnownEmailSendStatus } from "@azure/communication-email";
+import { EmailClient, EmailMessage, KnownEmailSendStatus } from "@azure/communication-email";
 import { z } from "zod";
 import otpEmailTemplates from "../../Templates/otpEmailTemplates";
+import sendMail from "../services/SendMail";
 
 
 const validationSc = z.object({
@@ -11,7 +12,7 @@ const validationSc = z.object({
             /^\+\d{1,2}\s\(\d{3}\)\s\d{3}-\d{4}$|^\+\d{1,2}\s\(\d{3}\)\s\d{9}$/,
             "Invalid Phone Number, please provide it in international format +94 (123) 456-7890",
         )
-        .min(1, "phone is Required"),
+        .min(1, "phone is Required").optional(),
     email: z.string().email(),
     username: z.string().optional(),
     otp: z.string()
@@ -29,19 +30,16 @@ export async function sendOTP(request: HttpRequest, context: InvocationContext):
             return { jsonBody: { message: "OTP Has Not been sent, invalid Data", data: data }, status: 400 };
         }
 
-
         if (!data.email && !data.phoneNumber) {
             return { jsonBody: { message: "OTP Has Not been sent", data: data }, status: 400 };
         }
-
         if (data.email) {
-            const POLLER_WAIT_TIME = 10
-            const emailClient = new EmailClient(process.env["connectionString"]);
-            const message = {
+
+            const message: EmailMessage = {
                 senderAddress: "DoNotReply@kiyas-cloud.live",
                 content: {
                     subject: "2FA OTP For CloudCare",
-                    plainText: "This email message is sent from Azure Communication Services Email using the JavaScript SDK.",
+
                     html: otpEmailTemplates(data.otp, data.username),
                 },
                 recipients: {
@@ -54,31 +52,9 @@ export async function sendOTP(request: HttpRequest, context: InvocationContext):
                 },
             };
 
-            const poller = await emailClient.beginSend(message);
 
-            if (!poller.getOperationState().isStarted) {
-                throw "Poller was not started."
-            }
+            await sendMail(message);
 
-            let timeElapsed = 0;
-            while (!poller.isDone()) {
-                poller.poll();
-                console.log("Email send polling in progress");
-
-                await new Promise(resolve => setTimeout(resolve, POLLER_WAIT_TIME * 1000));
-                timeElapsed += 10;
-
-                if (timeElapsed > 18 * POLLER_WAIT_TIME) {
-                    throw "Polling timed out.";
-                }
-            }
-
-            if (poller.getResult().status === KnownEmailSendStatus.Succeeded) {
-                console.log(`Successfully sent the email (operation id: ${poller.getResult().id})`);
-            }
-            else {
-                throw poller.getResult().error;
-            }
 
         }
 
@@ -155,7 +131,7 @@ export async function sendOTP(request: HttpRequest, context: InvocationContext):
 
     } catch (error) {
 
-        return { jsonBody: { message: "Error While Sending OTP" }, status: 400 };
+        return { jsonBody: { message: `Error While Sending OTP,  ${error}` }, status: 400 };
     }
 
 

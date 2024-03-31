@@ -1,29 +1,44 @@
 const otpEmailTemplates = (otp: string, username: string) => {
-    return `<html lang="en">
+  return `<html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f5f5f5;
+                padding: 20px;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #ffffff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+                color: #333;
+            }
+            p {
+                color: #777;
+            }
+            .otp {
+                font-size: 24px;
+                font-weight: bold;
+                color: #007bff;
+            }
+        </style>
+    </head>
     <body>
-      <p>
-        Dear ${username},<br /><br />Greetings from Cloud Care! We hope
-        you're doing well.<br /><br />To enhance the security of your Cloud Care
-        account, we have implemented a two-factor authentication (2FA) process. As
-        a part of this security measure, you are required to enter a one-time
-        password (OTP) to complete the authentication process.<br /><br /><b
-          ><strong>Here is your OTP:</strong></b
-        >
-       <b><strong>${otp}</strong></b>(Note: This code is valid for a single
-        use and will expire in <b><strong>one hour</strong></b
-        >.)<br /><br />Please use this OTP to verify your identity and finalize
-        the authentication process. If you did not initiate this request or if you
-        have any concerns, please contact our support team immediately at
-        <a href="mailto:support@cloudcare.kiyas-cloud.live"
-          >support@cloudcare.kiyas-cloud.live</a
-        >
-        &nbsp;<br />We appreciate your commitment to maintaining the security and
-        privacy of your Cloud Care account.<br /><br />Thank you<br /><br />Best
-        regards,<br />Cloud Care Support Team<br /><a
-          href="mailto:support@cloudcare.kiyas-cloud.live"
-          >support@cloudcare.kiyas-cloud.live</a
-        ><br /><br /><br /><br /><br /><br />&nbsp;
-      </p>
+        <div class="container">
+            <h1>One-Time Password (OTP) for Account Verification</h1>
+            <p>Hello ${username},</p>
+            <p>Your OTP for account verification is:</p>
+            <p class="otp">${otp}</p> <!-- Replace with the actual OTP -->
+            <p>This OTP will expire within 1 hour.</p>
+            <p>If you did not request this OTP, please ignore this email.</p>
+            <p>For any assistance, feel free to contact our support team at <a href="mailto:support@cloudcare.kiyas-cloud.live">support@cloudcare.kiyas-cloud.live</a>.</p>
+            <p>Thank you!</p>
+        </div>
     </body>
     </html>`
 }

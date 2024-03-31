@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { sendOTP } from "../handlers/sendOTP";
+import { SendPwdResetMail } from "../handlers/SendPwdResetMail";
 
 
 app.http('sendOTP', {
@@ -9,9 +10,9 @@ app.http('sendOTP', {
 });
 
 app.http('sendRestPWD', {
-    methods: ['GET'],
+    methods: ['POST'],
     authLevel: 'anonymous',
-    handler: sendOTP
+    handler: SendPwdResetMail
 });
 
 
