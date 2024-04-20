@@ -14,7 +14,25 @@ This Azure Function serves as a powerful tool for sending emails and WhatsApp me
 2. **Azure Communication Services Resource**: Set up an Azure Communication Services resource in your Azure portal.
 3. **Function App**: Create an Azure Function App in your Azure portal.
 4. **Deployment**: Deploy this code to your Azure Function App.
-5. **Configuration**: Set up necessary configurations like connection strings and credentials in your Azure Function App settings.
+5. **Configuration**:
+   - **Communication Service Connection String**: Set up the connection string for your Azure Communication Services resource.
+   - **WhatsApp Channel Registration ID**: Obtain the registration ID for your WhatsApp channel in Azure Communication Services.
+
+## Sample `local.settings.json`
+
+You can use the following template for your `local.settings.json` file:
+
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "connectionString": "YOUR_COMMUNICATION_SERVICE_CONNECTION_STRING",
+    "channelRegistrationId": "YOUR_WHATSAPP_CHANNEL_REGISTRATION_ID"
+  }
+}
+```
 
 ## Usage
 
