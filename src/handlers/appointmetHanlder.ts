@@ -18,8 +18,6 @@ const validationSc = z.object({
     date: z.string(),
     time: z.string(),
     referenceId: z.string().optional(),
-
-
 });
 
 
